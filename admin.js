@@ -144,6 +144,14 @@ function startDataListeners() {
                 defaultHours = { ...DEFAULT_HOURS };
             }
             renderDefaultHoursTable();
+        } else {
+            // Document doesn't exist yet (brand new project), render defaults
+            blockedDays = {};
+            customHours = {};
+            maintenanceMode = false;
+            updateMaintenanceUI();
+            defaultHours = { ...DEFAULT_HOURS };
+            renderDefaultHoursTable();
         }
         renderAdminCalendar();
     });
