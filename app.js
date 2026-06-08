@@ -8,11 +8,6 @@
 
 let db;
 
-// ── EmailJS Config ──
-const EMAILJS_PUBLIC_KEY = 'Mb-9-l6z89ByJ6B7-';
-const EMAILJS_SERVICE_ID = 'service_lh2vamp';
-const EMAILJS_TEMPLATE_ID = 'template_jin29zl';
-
 // ── Services ──
 let SERVICES = [];
 const DEFAULT_SERVICES = [
@@ -187,7 +182,6 @@ function bindEvents() {
     // Client info validation
     document.getElementById('clientName').addEventListener('input', validateClientInfo);
     document.getElementById('clientPhone').addEventListener('input', validateClientInfo);
-    document.getElementById('clientEmail').addEventListener('input', validateClientInfo);
 
     // Confirm booking
     document.getElementById('btnConfirm').addEventListener('click', confirmBooking);
@@ -449,9 +443,7 @@ function selectTime(minutes, btn) {
 function validateClientInfo() {
     const name = document.getElementById('clientName').value.trim();
     const phone = document.getElementById('clientPhone').value.trim();
-    const email = document.getElementById('clientEmail').value.trim();
-    const emailOk = email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    document.getElementById('btnNext4').disabled = !(name.length >= 2 && phone.length >= 7 && emailOk);
+    document.getElementById('btnNext4').disabled = !(name.length >= 2 && phone.length >= 7);
 }
 
 // ── Confirmation ──
@@ -489,17 +481,10 @@ function renderConfirmation() {
             <span class="confirm-label">Cliente</span>
             <span class="confirm-value">${document.getElementById('clientName').value.trim()}</span>
         </div>
-        <div class="confirm-divider"></div>
         <div class="confirm-row">
             <span class="confirm-label">Teléfono</span>
             <span class="confirm-value">${document.getElementById('clientPhone').value.trim()}</span>
         </div>
-        ${document.getElementById('clientEmail').value.trim() ? `
-        <div class="confirm-divider"></div>
-        <div class="confirm-row">
-            <span class="confirm-label">Email</span>
-            <span class="confirm-value">${document.getElementById('clientEmail').value.trim()}</span>
-        </div>` : ''}
     `;
 }
 
@@ -519,14 +504,10 @@ async function confirmBooking() {
             time: minutesToTime(selectedTime),
             clientName: document.getElementById('clientName').value.trim(),
             clientPhone: document.getElementById('clientPhone').value.trim(),
-            clientEmail: document.getElementById('clientEmail').value.trim(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         await db.collection('stefcitas_appointments').add(appointment);
-
-        // Send email notification
-        sendEmailNotification(appointment);
 
         // Show success screen
         showSuccess(appointment);
@@ -582,7 +563,6 @@ function resetBooking() {
     document.getElementById('serviceInfo').style.display = 'none';
     document.getElementById('clientName').value = '';
     document.getElementById('clientPhone').value = '';
-    document.getElementById('clientEmail').value = '';
     document.getElementById('btnNext1').disabled = true;
     document.getElementById('btnConfirm').disabled = false;
     document.getElementById('btnConfirm').textContent = 'Confirmar Cita ✨';
@@ -634,42 +614,7 @@ function minutesToTime(minutes) {
     return `${h12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
-// ── Email Notification ──
-function sendEmailNotification(appt) {
-    try {
-        const d = new Date(appt.date + 'T00:00:00');
-        const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][d.getDay()];
-        const monthName = MONTH_NAMES[d.getMonth()];
-
-        const templateParams = {
-            service: `${appt.serviceEmoji} ${appt.service}`,
-            price: appt.price || 'N/A',
-            date: `${dayName} ${d.getDate()} de ${monthName}, ${d.getFullYear()}`,
-            time: appt.time,
-            client_name: appt.clientName,
-            client_phone: appt.clientPhone,
-            duration: formatDuration(appt.duration),
-            to_email: 'stefanypalafox.pmu@gmail.com'
-        };
-
-        // Send to salon owner
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY).then(
-            () => console.log('✅ Email sent to salon'),
-            (err) => console.error('❌ Email error (salon):', err)
-        );
-
-        // Send copy to client if they provided email
-        if (appt.clientEmail) {
-            const clientParams = { ...templateParams, to_email: appt.clientEmail };
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, clientParams, EMAILJS_PUBLIC_KEY).then(
-                () => console.log('✅ Email sent to client'),
-                (err) => console.error('❌ Email error (client):', err)
-            );
-        }
-    } catch (e) {
-        console.error('Email notification error:', e);
-    }
-}
+// ── Email Notification Removed ──
 
 function updateBusinessHoursLabel() {
     const labelEl = document.getElementById('businessHoursLabel');
