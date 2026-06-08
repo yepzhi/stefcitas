@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Stefany Palafox PMU ✨</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Login Gate -->
+    <div class="glass-container" id="loginGate">
+        <div class="header">
+            <a href="./" style="text-decoration: none; color: inherit;">
+                <h1>Stefany Palafox PMU ✨</h1>
+            </a>
+            <p class="subtitle">Panel de Administración</p>
+        </div>
+        <div class="login-form">
+            <div class="control-group">
+                <label class="control-label" for="adminPassword">Contraseña de acceso</label>
+                <input type="password" id="adminPassword" class="input-text" placeholder="Ingresa tu contraseña"
+                    autocomplete="current-password">
+            </div>
+            <p class="login-error" id="loginError" style="display:none;">❌ Contraseña incorrecta</p>
+            <button class="btn-primary" id="btnLogin">Entrar 🔐</button>
+            <p class="login-hint" id="loginHint"></p>
+        </div>
+    </div>
+
+    <!-- Admin Panel (hidden until login) -->
+    <div class="glass-container admin-panel" id="adminPanel" style="display:none;">
+        <div class="header">
+            <a href="./" style="text-decoration: none; color: inherit;">
+                <h1>Stefany Palafox PMU ✨</h1>
+            </a>
+            <p class="subtitle">Panel de Administración</p>
+            <div class="header-badges">
+                <div class="badge">
+                    <span class="badge-icon">🟢</span>
+                    <span id="syncStatus">Conectado a Firebase</span>
+                </div>
+                <a href="./" class="badge badge-link">
+                    <span class="badge-icon">🌐</span>
+                    <span>Ver página pública</span>
+                </a>
+            </div>
+            <a href="./" class="btn-goto-booking">📅 Ir a Agendar Cita</a>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="calendar" id="tabCalendar">📅 Calendario</button>
+            <button class="tab-btn" data-tab="appointments" id="tabAppointments">📋 Citas</button>
+            <button class="tab-btn" data-tab="settings" id="tabSettings">⚙️ Ajustes</button>
+        </div>
+
+        <!-- TAB: Calendar Management -->
+        <div class="tab-panel active" id="panelCalendar">
+            <div class="section-title">Gestión de Disponibilidad</div>
+            <p class="section-desc">Haz clic en un día para bloquearlo o desbloquearlo. Los días bloqueados no estarán
+                disponibles para citas.</p>
+
+            <div class="calendar-nav">
+                <button class="cal-nav-btn" id="adminPrevMonth">‹</button>
+                <span class="cal-month-label" id="adminCalLabel"></span>
+                <button class="cal-nav-btn" id="adminNextMonth">›</button>
+            </div>
+
+            <div class="calendar-grid admin-calendar" id="adminCalGrid">
+                <div class="cal-header-cell">Lun</div>
+                <div class="cal-header-cell">Mar</div>
+                <div class="cal-header-cell">Mié</div>
+                <div class="cal-header-cell">Jue</div>
+                <div class="cal-header-cell">Vie</div>
+                <div class="cal-header-cell">Sáb</div>
+                <div class="cal-header-cell">Dom</div>
+            </div>
+
+            <!-- Day detail panel -->
+            <div class="day-detail" id="dayDetail" style="display:none;">
+                <div class="day-detail-header">
+                    <span class="day-detail-title" id="dayDetailTitle"></span>
+                    <button class="btn-close" id="closeDayDetail">✕</button>
+                </div>
+                <div class="day-detail-body" id="dayDetailBody"></div>
+            </div>
+        </div>
+
+        <!-- TAB: Appointments List -->
+        <div class="tab-panel" id="panelAppointments">
+            <div class="section-title">Citas Agendadas</div>
+            <div class="appointments-filter">
+                <button class="filter-btn active" data-filter="upcoming" id="filterUpcoming">Próximas</button>
+                <button class="filter-btn" data-filter="past" id="filterPast">Pasadas</button>
+                <button class="filter-btn" data-filter="all" id="filterAll">Todas</button>
+            </div>
+            <div class="appointments-list" id="appointmentsList">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <!-- TAB: Settings -->
+        <div class="tab-panel" id="panelSettings">
+            <div class="section-title">Configuración</div>
+
+            <div class="settings-section">
+                <div class="settings-label">Estado de la página pública</div>
+                <p class="section-desc" style="margin-bottom: 8px;">
+                    Desactiva la página de citas mostrando un mensaje de fuera de servicio, o actívala de nuevo para recibir reservas.
+                </p>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn-primary btn-small" id="btnToggleMaintenance" style="width: auto; padding: 10px 20px;">Cargando...</button>
+                    <span id="maintenanceStatus" style="font-weight: 700; font-size: 0.95em; color: rgba(255, 255, 255, 0.45);">Desconocido</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Horarios predeterminados</span>
+                    <button class="btn-primary btn-small" id="btnSaveDefaultHours" style="width:auto; padding:10px 20px;">Guardar Horarios</button>
+                </div>
+                <p class="section-desc" style="margin-bottom: 12px;">
+                    Define los días de la semana en los que el salón está abierto y sus horarios generales para recibir citas.
+                </p>
+                <div class="hours-table" id="defaultHoursTable">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-label">Cambiar contraseña</div>
+                <div class="control-group">
+                    <input type="password" id="newPassword" class="input-text" placeholder="Nueva contraseña">
+                </div>
+                <div class="control-group">
+                    <input type="password" id="confirmPassword" class="input-text" placeholder="Confirmar contraseña">
+                </div>
+                <button class="btn-primary btn-small" id="btnChangePassword">Cambiar Contraseña</button>
+                <p class="settings-note" id="passwordMsg"></p>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-label" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Servicios disponibles</span>
+                    <div>
+                        <button class="btn-secondary btn-small" id="btnAddService" style="margin-right:8px;">+ Añadir
+                            Servicio</button>
+                        <button class="btn-primary btn-small" id="btnSaveServices">Guardar Cambios</button>
+                    </div>
+                </div>
+                <p class="section-desc" style="margin-bottom: 16px;">
+                    Edita los nombres, duraciones (en minutos) y precios de tus servicios. Los cambios solo afectarán a
+                    las citas nuevas; el historial se mantendrá intacto.
+                </p>
+                <div class="services-table" id="servicesTable" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Injected -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <a href="https://yepzhi.com" target="_blank" class="footer-credit-link">
+            <span>⚡</span> Developed by <strong>yepzhi</strong>
+        </a>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="admin.js?v=2.3"></script>
+
+    <!-- Particle System (CBSalon Theme) -->
+    <canvas id="particleCanvas"></canvas>
+    <script>
+        (function () {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animId;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                if (particles.length === 0) initParticles();
+            }
+
+            function initParticles() {
+                const count = 50;
+                particles = [];
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        baseRadius: Math.random() * 2 + 0.5,
+                        speedX: (Math.random() - 0.5) * 0.5,
+                        speedY: (Math.random() - 0.5) * 0.5,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const time = Date.now() * 0.001;
+
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+
+                    const pulse = Math.sin(time + p.phase) * 0.5 + 0.5;
+                    const radius = p.baseRadius + pulse * 1.5;
+                    const alpha = 0.15 + pulse * 0.25;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.shadowBlur = 8 + pulse * 10;
+                    ctx.shadowColor = '#C8A96B'; // Stefany Gold Glow
+                    ctx.fill();
+                });
+
+                // Draw connection lines between nearby particles
+                ctx.shadowBlur = 0;
+                particles.forEach((p, i) => {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = `rgba(200, 169, 107, ${0.1 * (1 - dist / 120)})`; // Gold Lines
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                });
+
+                animId = requestAnimationFrame(render);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            render();
+        })();
+    </script>
+</body>
+
+</html>
