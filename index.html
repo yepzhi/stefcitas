@@ -180,14 +180,17 @@
 
         <!-- Success Screen -->
         <div class="step-panel" id="stepSuccess" style="display:none;">
-            <div class="success-container">
+            <div class="success-container" style="width:100%;">
                 <div class="success-icon">🎉</div>
-                <div class="success-title">¡Cita Agendada!</div>
-                <p class="success-text">Tu cita ha sido registrada exitosamente. Te esperamos.</p>
-                <div class="confirmation-card" id="successCard">
+                <div class="success-title">¡Cita Registrada!</div>
+                <p class="success-text">Tu cita ha sido guardada. Por favor, envía el mensaje de WhatsApp para confirmar con Stefany.</p>
+                <div class="confirmation-card" id="successCard" style="width:100%;">
                     <!-- Filled by JS -->
                 </div>
-                <button class="btn-primary" id="btnNewBooking" style="margin-top:24px;">Agendar otra cita</button>
+                <a href="" id="btnWhatsAppConfirm" target="_blank" class="btn-primary" style="margin-top:24px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #25D366, #128C7E); box-shadow:0 4px 20px rgba(37,211,102,0.3);">
+                    💬 Enviar WhatsApp para confirmar
+                </a>
+                <button class="btn-secondary" id="btnNewBooking" style="margin-top:16px; width:100%;">Agendar otra cita</button>
             </div>
         </div>
 

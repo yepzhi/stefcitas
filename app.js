@@ -511,6 +511,19 @@ async function confirmBooking() {
 
         // Show success screen
         showSuccess(appointment);
+
+        // Open WhatsApp automatically
+        const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const d = new Date(appointment.date + 'T00:00:00');
+        const dayStr = `${dayName[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`;
+        const waMessage = `Hola Stefany, acabo de agendar una cita para *${appointment.serviceEmoji} ${appointment.service}* el *${dayStr}* a las *${appointment.time}*. Mi nombre es *${appointment.clientName}*.`;
+        const waUrl = `https://wa.me/5216864401681?text=${encodeURIComponent(waMessage)}`;
+        
+        // Timeout to ensure Firestore updates and UI transitions complete first
+        setTimeout(() => {
+            window.open(waUrl, '_blank');
+        }, 500);
+
     } catch (error) {
         console.error('Error al guardar cita:', error);
         alert('Error al guardar la cita. Por favor intenta de nuevo.');
@@ -526,6 +539,7 @@ function showSuccess(appt) {
     // Fill success card
     const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const d = new Date(appt.date + 'T00:00:00');
+    const dayStr = `${dayName[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`;
 
     document.getElementById('successCard').innerHTML = `
         <div class="confirm-row">
@@ -535,7 +549,7 @@ function showSuccess(appt) {
         <div class="confirm-divider"></div>
         <div class="confirm-row">
             <span class="confirm-label">Fecha</span>
-            <span class="confirm-value">${dayName[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}</span>
+            <span class="confirm-value">${dayStr}</span>
         </div>
         <div class="confirm-divider"></div>
         <div class="confirm-row">
@@ -548,6 +562,11 @@ function showSuccess(appt) {
             <span class="confirm-value">${appt.clientName}</span>
         </div>
     `;
+
+    // Configure WhatsApp confirmation button link
+    const waMessage = `Hola Stefany, acabo de agendar una cita para *${appt.serviceEmoji} ${appt.service}* el *${dayStr}* a las *${appt.time}*. Mi nombre es *${appt.clientName}*.`;
+    const waUrl = `https://wa.me/5216864401681?text=${encodeURIComponent(waMessage)}`;
+    document.getElementById('btnWhatsAppConfirm').setAttribute('href', waUrl);
 
     // Update progress bar to all completed
     document.querySelectorAll('.progress-step').forEach(ps => ps.classList.add('completed'));
