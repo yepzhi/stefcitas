@@ -41,6 +41,7 @@ const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
 
 // ── State ──
 let currentStep = 1;
+let selectedLocation = '';
 let selectedService = null;
 let selectedDate = null;
 let selectedTime = null;
@@ -48,6 +49,7 @@ let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
 let blockedDays = {};       // { "2026-03-10": true }
 let customHours = {};       // { "2026-03-15": { open: "10:00", close: "18:00" } }
+let dayLocations = {};      // { "2026-06-15": "Hermosillo" }
 let appointments = [];      // from Firestore
 
 // ── Init ──
@@ -72,6 +74,7 @@ function initFirebase() {
             const data = doc.data();
             blockedDays = data.blockedDays || {};
             customHours = data.customHours || {};
+            dayLocations = data.dayLocations || {};
 
             // Parse defaultHours from Firestore if they exist
             if (data.defaultHours) {
@@ -122,8 +125,15 @@ function initFirebase() {
 
 function renderServicesDropdown() {
     const select = document.getElementById('serviceSelect');
+    if (!selectedLocation) {
+        select.innerHTML = '<option value="" disabled selected>— Primero elige ubicación —</option>';
+        select.disabled = true;
+        return;
+    }
+
     // Keep the first disabled option
     select.innerHTML = '<option value="" disabled selected>— Elige un servicio —</option>';
+    select.disabled = false;
 
     SERVICES.forEach((service, index) => {
         const option = document.createElement('option');
@@ -147,6 +157,19 @@ function renderServicesDropdown() {
 }
 
 function bindEvents() {
+    // Location select
+    const locationSelect = document.getElementById('locationSelect');
+    if (locationSelect) {
+        locationSelect.addEventListener('change', (e) => {
+            selectedLocation = e.target.value;
+            selectedService = null;
+            document.getElementById('serviceInfo').style.display = 'none';
+            document.getElementById('btnNext1').disabled = true;
+            renderServicesDropdown();
+            renderCalendar();
+        });
+    }
+
     // Service select
     document.getElementById('serviceSelect').addEventListener('change', (e) => {
         const idx = parseInt(e.target.value);
@@ -281,6 +304,15 @@ function renderCalendar() {
         const isBlocked = blockedDays[dateStr] === true;
         const hasHours = getHoursForDate(date) !== null;
 
+        const dayLoc = dayLocations[dateStr] || 'Mexicali';
+        if (dayLoc === 'Hermosillo') {
+            cell.classList.add('loc-hermosillo');
+        } else {
+            cell.classList.add('loc-mexicali');
+        }
+
+        const isWrongLocation = dayLoc !== selectedLocation;
+
         // Check if today is past closing time
         const now = new Date();
         let isTodayClosed = false;
@@ -292,7 +324,7 @@ function renderCalendar() {
 
         const isFull = hasHours && !isPast && !isTodayClosed && !isSunday && !isBlocked && isDayFull(date);
 
-        if (isPast || isTodayClosed || isSunday || isBlocked || !hasHours || isFull) {
+        if (isPast || isTodayClosed || isSunday || isBlocked || !hasHours || isFull || isWrongLocation) {
             cell.classList.add('disabled');
             if (isFull) {
                 cell.classList.add('full');
@@ -453,6 +485,11 @@ function renderConfirmation() {
 
     card.innerHTML = `
         <div class="confirm-row">
+            <span class="confirm-label">Ubicación</span>
+            <span class="confirm-value">${selectedLocation}</span>
+        </div>
+        <div class="confirm-divider"></div>
+        <div class="confirm-row">
             <span class="confirm-label">Servicio</span>
             <span class="confirm-value">${selectedService.emoji} ${selectedService.name}</span>
         </div>
@@ -502,6 +539,7 @@ async function confirmBooking() {
             price: selectedService.price,
             date: formatDateStr(selectedDate),
             time: minutesToTime(selectedTime),
+            location: selectedLocation,
             clientName: document.getElementById('clientName').value.trim(),
             clientPhone: document.getElementById('clientPhone').value.trim(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -516,7 +554,7 @@ async function confirmBooking() {
         const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const d = new Date(appointment.date + 'T00:00:00');
         const dayStr = `${dayName[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`;
-        const waMessage = `Hola Stefany, acabo de agendar una cita para *${appointment.serviceEmoji} ${appointment.service}* el *${dayStr}* a las *${appointment.time}*. Mi nombre es *${appointment.clientName}*.`;
+        const waMessage = `Hola Stefany, acabo de agendar una cita para *${appointment.serviceEmoji} ${appointment.service}* en *${appointment.location}* el *${dayStr}* a las *${appointment.time}*. Mi nombre es *${appointment.clientName}*.`;
         const waUrl = `https://wa.me/5216864401681?text=${encodeURIComponent(waMessage)}`;
         
         // Timeout to ensure Firestore updates and UI transitions complete first
@@ -543,6 +581,11 @@ function showSuccess(appt) {
 
     document.getElementById('successCard').innerHTML = `
         <div class="confirm-row">
+            <span class="confirm-label">Ubicación</span>
+            <span class="confirm-value">${appt.location || 'Mexicali'}</span>
+        </div>
+        <div class="confirm-divider"></div>
+        <div class="confirm-row">
             <span class="confirm-label">Servicio</span>
             <span class="confirm-value">${appt.serviceEmoji} ${appt.service}</span>
         </div>
@@ -564,7 +607,7 @@ function showSuccess(appt) {
     `;
 
     // Configure WhatsApp confirmation button link
-    const waMessage = `Hola Stefany, acabo de agendar una cita para *${appt.serviceEmoji} ${appt.service}* el *${dayStr}* a las *${appt.time}*. Mi nombre es *${appt.clientName}*.`;
+    const waMessage = `Hola Stefany, acabo de agendar una cita para *${appt.serviceEmoji} ${appt.service}* en *${appt.location || 'Mexicali'}* el *${dayStr}* a las *${appt.time}*. Mi nombre es *${appt.clientName}*.`;
     const waUrl = `https://wa.me/5216864401681?text=${encodeURIComponent(waMessage)}`;
     document.getElementById('btnWhatsAppConfirm').setAttribute('href', waUrl);
 
@@ -574,11 +617,20 @@ function showSuccess(appt) {
 }
 
 function resetBooking() {
+    selectedLocation = '';
     selectedService = null;
     selectedDate = null;
     selectedTime = null;
 
-    document.getElementById('serviceSelect').value = '';
+    const locationSelect = document.getElementById('locationSelect');
+    if (locationSelect) locationSelect.value = '';
+
+    const serviceSelect = document.getElementById('serviceSelect');
+    if (serviceSelect) {
+        serviceSelect.value = '';
+        serviceSelect.disabled = true;
+    }
+
     document.getElementById('serviceInfo').style.display = 'none';
     document.getElementById('clientName').value = '';
     document.getElementById('clientPhone').value = '';

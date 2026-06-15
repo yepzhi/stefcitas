@@ -578,6 +578,15 @@ body::before {
     cursor: default;
 }
 
+.cal-day.loc-hermosillo {
+    border-bottom: 3px solid #C8A96B !important;
+}
+
+.cal-day.loc-mexicali {
+    border-bottom: 3px solid #556B2F !important;
+}
+
+
 /* ── Time Slots ── */
 .time-slots-grid {
     display: grid;

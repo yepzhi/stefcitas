@@ -62,7 +62,7 @@
             <div class="header-badges">
                 <div class="badge">
                     <span class="badge-icon">📍</span>
-                    <span>Mexicali, B.C.</span>
+                    <span id="locationBadgeLabel">Mexicali · Hermosillo</span>
                 </div>
                 <div class="badge">
                     <span class="badge-icon">🕐</span>
@@ -99,13 +99,21 @@
             </div>
         </div>
 
-        <!-- Step 1: Service Selection -->
+        <!-- Step 1: Location & Service Selection -->
         <div class="step-panel active" id="step1">
-            <div class="step-title">¿Qué servicio deseas? ✨</div>
+            <div class="step-title">¿Dónde y qué servicio deseas? ✨</div>
             <div class="control-group">
+                <label class="control-label" for="locationSelect">Selecciona la ubicación</label>
+                <select id="locationSelect" class="input-select">
+                    <option value="" disabled selected>— Elige una ubicación —</option>
+                    <option value="Mexicali">Mexicali, B.C.</option>
+                    <option value="Hermosillo">Hermosillo, Son.</option>
+                </select>
+            </div>
+            <div class="control-group" style="margin-top: 16px;">
                 <label class="control-label" for="serviceSelect">Selecciona un servicio</label>
-                <select id="serviceSelect" class="input-select">
-                    <option value="" disabled selected>— Elige un servicio —</option>
+                <select id="serviceSelect" class="input-select" disabled>
+                    <option value="" disabled selected>— Primero elige ubicación —</option>
                     <!-- Services injected by JS -->
                 </select>
             </div>

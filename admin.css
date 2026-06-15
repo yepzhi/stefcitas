@@ -174,6 +174,14 @@
     background: rgba(239, 68, 68, 0.25) !important;
 }
 
+.admin-calendar .cal-day.loc-hermosillo {
+    border-bottom: 3px solid #C8A96B !important;
+}
+
+.admin-calendar .cal-day.loc-mexicali {
+    border-bottom: 3px solid #556B2F !important;
+}
+
 /* ── Day Detail Panel ── */
 .day-detail {
     background: rgba(255, 255, 255, 0.04);

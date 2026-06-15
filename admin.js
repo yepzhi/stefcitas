@@ -43,6 +43,7 @@ const DEFAULT_PASSWORD_HASH = '7b5978b5b219b5a5e3d4b2c1a0f8e3d2c1b0a9f8e7d6c5b4a
 // ── State ──
 let blockedDays = {};
 let customHours = {};
+let dayLocations = {};
 let appointments = [];
 let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
@@ -131,6 +132,7 @@ function startDataListeners() {
             const data = doc.data();
             blockedDays = data.blockedDays || {};
             customHours = data.customHours || {};
+            dayLocations = data.dayLocations || {};
             maintenanceMode = data.maintenanceMode || false;
             updateMaintenanceUI();
 
@@ -148,6 +150,7 @@ function startDataListeners() {
             // Document doesn't exist yet (brand new project), render defaults
             blockedDays = {};
             customHours = {};
+            dayLocations = {};
             maintenanceMode = false;
             updateMaintenanceUI();
             defaultHours = { ...DEFAULT_HOURS };
@@ -292,6 +295,13 @@ function renderAdminCalendar() {
         const isClosedGeneral = defaultHours[dayOfWeek] === null || defaultHours[dayOfWeek] === undefined;
         const isBlocked = blockedDays[dateStr] === true;
 
+        const dayLoc = dayLocations[dateStr] || 'Mexicali';
+        if (dayLoc === 'Hermosillo') {
+            cell.classList.add('loc-hermosillo');
+        } else {
+            cell.classList.add('loc-mexicali');
+        }
+
         if (isClosedGeneral) {
             cell.classList.add('closed-general');
         }
@@ -338,6 +348,18 @@ function showDayDetail(date, dateStr) {
         <div class="detail-row">
             <span class="detail-label">Estado</span>
             <span class="detail-value" style="color: ${isBlocked ? '#f87171' : '#4ade80'}">${isBlocked ? '🚫 Bloqueado' : '✅ Disponible'}</span>
+        </div>
+    `;
+
+    // Location Select
+    const currentLoc = dayLocations[dateStr] || 'Mexicali';
+    html += `
+        <div class="detail-row" style="flex-direction: column; gap:10px; align-items: stretch;">
+            <span class="detail-label">Ubicación asignada</span>
+            <select id="dayLocationSelect" class="input-select" style="min-height: 40px; padding: 8px 32px 8px 16px; border-radius: 12px; font-size: 0.9em;" onchange="saveDayLocation('${dateStr}', this.value)">
+                <option value="Mexicali" ${currentLoc === 'Mexicali' ? 'selected' : ''}>Mexicali, B.C.</option>
+                <option value="Hermosillo" ${currentLoc === 'Hermosillo' ? 'selected' : ''}>Hermosillo, Son.</option>
+            </select>
         </div>
     `;
 
@@ -404,7 +426,7 @@ function showDayDetail(date, dateStr) {
 // ── Block/Unblock Day ──
 async function toggleBlockDay(dateStr, currentlyBlocked) {
     try {
-        const docRef = db.collection('salon_settings').doc('availability');
+        const docRef = db.collection('stefcitas_settings').doc('availability');
 
         if (currentlyBlocked) {
             // ATOMIC delete of the specific key — no race condition possible
@@ -437,6 +459,28 @@ async function toggleBlockDay(dateStr, currentlyBlocked) {
     } catch (error) {
         console.error('Error updating blocked days:', error);
         showToast('Error al actualizar. Intenta de nuevo.', 'error');
+    }
+}
+
+// ── Save Day Location ──
+async function saveDayLocation(dateStr, location) {
+    try {
+        const newDayLocations = { ...dayLocations };
+        newDayLocations[dateStr] = location;
+
+        await db.collection('stefcitas_settings').doc('availability').set({
+            dayLocations: newDayLocations
+        }, { merge: true });
+
+        // Update local state immediately
+        dayLocations = newDayLocations;
+        showToast(`📍 Ubicación guardada: ${location}`, 'success');
+
+        // Re-render calendar to update border indicators
+        renderAdminCalendar();
+    } catch (error) {
+        console.error('Error saving day location:', error);
+        showToast('Error al guardar la ubicación.', 'error');
     }
 }
 
@@ -512,7 +556,7 @@ function renderAppointments() {
                 <span class="appt-emoji">${a.serviceEmoji || '📋'}</span>
                 <div class="appt-info">
                     <span class="appt-service">${a.service}</span>
-                    <span class="appt-datetime">${DAY_NAMES[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]} · ${a.time}</span>
+                    <span class="appt-datetime">${DAY_NAMES[d.getDay()]} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]} · ${a.time} · 📍 ${a.location || 'Mexicali'}</span>
                     <span class="appt-client">👤 ${a.clientName}</span>
                     <span class="appt-phone">📱 ${a.clientPhone}</span>
                 </div>
