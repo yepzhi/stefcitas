@@ -23,11 +23,11 @@ const DEFAULT_SERVICES = [
 ];
 
 const DEFAULT_HOURS = {
-    1: { open: '16:00', close: '21:00' },
-    2: { open: '16:00', close: '21:00' },
-    3: { open: '16:00', close: '21:00' },
-    4: { open: '16:00', close: '21:00' },
-    5: { open: '16:00', close: '21:00' },
+    1: { open: '09:00', close: '21:00' },
+    2: { open: '09:00', close: '21:00' },
+    3: { open: '09:00', close: '21:00' },
+    4: { open: '09:00', close: '21:00' },
+    5: { open: '09:00', close: '21:00' },
     6: { open: '09:00', close: '21:00' },
     0: null
 };
@@ -171,7 +171,7 @@ function startDataListeners() {
 
     // Services
     db.collection('stefcitas_settings').doc('services').onSnapshot(doc => {
-        if (doc.exists && doc.data().list) {
+        if (doc.exists && doc.data().list && doc.data().list.length > 0) {
             SERVICES = doc.data().list;
         } else {
             SERVICES = [...DEFAULT_SERVICES];

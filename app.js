@@ -26,11 +26,11 @@ const DEFAULT_SERVICES = [
 // ── Default Business Hours ──
 // 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 0=Sun
 const DEFAULT_HOURS = {
-    1: { open: '16:00', close: '21:00' }, // Lunes
-    2: { open: '16:00', close: '21:00' }, // Martes
-    3: { open: '16:00', close: '21:00' }, // Miércoles
-    4: { open: '16:00', close: '21:00' }, // Jueves
-    5: { open: '16:00', close: '21:00' }, // Viernes
+    1: { open: '09:00', close: '21:00' }, // Lunes
+    2: { open: '09:00', close: '21:00' }, // Martes
+    3: { open: '09:00', close: '21:00' }, // Miércoles
+    4: { open: '09:00', close: '21:00' }, // Jueves
+    5: { open: '09:00', close: '21:00' }, // Viernes
     6: { open: '09:00', close: '21:00' }, // Sábado
     0: null                                // Domingo - cerrado
 };
@@ -103,11 +103,13 @@ function initFirebase() {
 
     // Listen to services — overrides defaults if admin has custom ones
     db.collection('stefcitas_settings').doc('services').onSnapshot(doc => {
-        if (doc.exists && doc.data().list) {
+        if (doc.exists && doc.data().list && doc.data().list.length > 0) {
             SERVICES = doc.data().list;
             renderServicesDropdown();
+        } else {
+            SERVICES = [...DEFAULT_SERVICES];
+            renderServicesDropdown();
         }
-        // else: keep DEFAULT_SERVICES already rendered
     });
 
     // Listen to appointments in real-time
