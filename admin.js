@@ -241,7 +241,7 @@ function bindAdminEvents() {
                 await db.collection('stefcitas_settings').doc('availability').set({
                     maintenanceMode: newMode
                 }, { merge: true });
-                showToast(newMode ? '🚫 Página desactivada (Mensaje activo)' : '✅ Página activada para citas', 'success');
+                showToast(newMode ? 'Página desactivada (Mensaje activo)' : 'Página activada para citas', 'success');
             } catch (error) {
                 console.error('Error toggling maintenance mode:', error);
                 showToast('Error al cambiar estado de la página.', 'error');
@@ -255,6 +255,12 @@ function bindAdminEvents() {
     const btnSaveDefaultHours = document.getElementById('btnSaveDefaultHours');
     if (btnSaveDefaultHours) {
         btnSaveDefaultHours.addEventListener('click', saveDefaultHours);
+    }
+
+    // Assign Range
+    const btnAssignRange = document.getElementById('btnAssignRange');
+    if (btnAssignRange) {
+        btnAssignRange.addEventListener('click', assignDateRange);
     }
 }
 
@@ -357,7 +363,12 @@ function showDayDetail(date, dateStr) {
     html += `
         <div class="detail-row">
             <span class="detail-label">Estado</span>
-            <span class="detail-value" style="color: ${isBlocked ? '#f87171' : '#4ade80'}">${isBlocked ? '🚫 Bloqueado' : '✅ Disponible'}</span>
+            <span class="detail-value" style="color: ${isBlocked ? '#f87171' : '#4ade80'}; display: flex; align-items: center; gap: 6px;">
+                ${isBlocked ? 
+                    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg> Bloqueado` : 
+                    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Disponible`
+                }
+            </span>
         </div>
     `;
 
@@ -425,7 +436,7 @@ function showDayDetail(date, dateStr) {
     // Block/unblock button
     html += `
         <button class="btn-block ${isBlocked ? 'unblock' : 'block'}" onclick="toggleBlockDay('${dateStr}', ${isBlocked})">
-            ${isBlocked ? '✅ Desbloquear este día' : '🚫 Bloquear este día'}
+            ${isBlocked ? 'Desbloquear este día' : 'Bloquear este día'}
         </button>
     `;
 
@@ -457,7 +468,7 @@ async function toggleBlockDay(dateStr, currentlyBlocked) {
             blockedDays[dateStr] = true;
         }
 
-        showToast(currentlyBlocked ? '✅ Día desbloqueado' : '🚫 Día bloqueado', 'success');
+        showToast(currentlyBlocked ? 'Día desbloqueado' : 'Día bloqueado', 'success');
 
         // Re-render immediately
         renderAdminCalendar();
@@ -484,7 +495,7 @@ async function saveDayLocation(dateStr, location) {
 
         // Update local state immediately
         dayLocations = newDayLocations;
-        showToast(`📍 Ubicación guardada: ${location}`, 'success');
+        showToast(`Ubicación guardada: ${location}`, 'success');
 
         // Re-render calendar to update border indicators
         renderAdminCalendar();
@@ -510,7 +521,7 @@ async function saveCustomHours(dateStr) {
             customHours: newCustom
         }, { merge: true });
 
-        showToast('⏰ Horario personalizado guardado', 'success');
+        showToast('Horario personalizado guardado', 'success');
     } catch (error) {
         console.error('Error saving custom hours:', error);
         showToast('Error al guardar horario personalizado.', 'error');
@@ -527,7 +538,7 @@ async function resetCustomHours(dateStr) {
             customHours: newCustom
         }, { merge: true });
 
-        showToast('🔄 Horario restablecido', 'info');
+        showToast('Horario restablecido', 'info');
     } catch (error) {
         console.error('Error resetting custom hours:', error);
         showToast('Error al restablecer horario.', 'error');
@@ -582,7 +593,7 @@ async function cancelAppointment(id) {
 
     try {
         await db.collection('stefcitas_appointments').doc(id).delete();
-        showToast('🗑️ Cita cancelada', 'success');
+        showToast('Cita cancelada', 'success');
     } catch (error) {
         console.error('Error cancelling appointment:', error);
         showToast('Error al cancelar la cita.', 'error');
@@ -596,13 +607,23 @@ async function changePassword() {
     const msg = document.getElementById('passwordMsg');
 
     if (!newPass || newPass.length < 4) {
-        msg.textContent = 'La contraseña debe tener al menos 4 caracteres';
+        msg.innerHTML = `
+            <span style="display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+                La contraseña debe tener al menos 4 caracteres
+            </span>
+        `;
         msg.className = 'settings-note error';
         return;
     }
 
     if (newPass !== confirmPass) {
-        msg.textContent = 'Las contraseñas no coinciden';
+        msg.innerHTML = `
+            <span style="display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+                Las contraseñas no coinciden
+            </span>
+        `;
         msg.className = 'settings-note error';
         return;
     }
@@ -613,12 +634,22 @@ async function changePassword() {
             passwordHash: hash
         }, { merge: true });
 
-        msg.textContent = '✅ Contraseña actualizada con éxito';
+        msg.innerHTML = `
+            <span style="display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Contraseña actualizada con éxito
+            </span>
+        `;
         msg.className = 'settings-note success';
         document.getElementById('newPassword').value = '';
         document.getElementById('confirmPassword').value = '';
     } catch (error) {
-        msg.textContent = 'Error al cambiar la contraseña';
+        msg.innerHTML = `
+            <span style="display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+                Error al cambiar la contraseña
+            </span>
+        `;
         msg.className = 'settings-note error';
     }
 }
@@ -700,7 +731,7 @@ async function saveServices() {
             list: newList
         }, { merge: true });
 
-        showToast('✅ Servicios guardados con éxito', 'success');
+        showToast('Servicios guardados con éxito', 'success');
     } catch (error) {
         console.error('Error saving services:', error);
         showToast('Error al guardar servicios', 'error');
@@ -750,8 +781,15 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
 
-    const icons = { success: '✅', error: '❌', info: '💡' };
-    toast.innerHTML = `<span class="toast-icon">${icons[type] || '💡'}</span>${message}`;
+    let svgIcon = '';
+    if (type === 'success') {
+        svgIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    } else if (type === 'error') {
+        svgIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>`;
+    } else {
+        svgIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A96B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    }
+    toast.innerHTML = `<span class="toast-icon" style="display: flex; align-items: center; justify-content: center;">${svgIcon}</span>${message}`;
 
     container.appendChild(toast);
 
@@ -759,6 +797,60 @@ function showToast(message, type = 'info') {
         toast.classList.add('removing');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
+}
+
+// ── Assign Date Range ──
+async function assignDateRange() {
+    const startVal = document.getElementById('rangeStart').value;
+    const endVal = document.getElementById('rangeEnd').value;
+    const locationVal = document.getElementById('rangeLocation').value;
+
+    if (!startVal || !endVal) {
+        showToast('Por favor selecciona ambas fechas.', 'error');
+        return;
+    }
+
+    const startDate = new Date(startVal + 'T00:00:00');
+    const endDate = new Date(endVal + 'T00:00:00');
+
+    if (startDate > endDate) {
+        showToast('La fecha inicial no puede ser posterior a la fecha final.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btnAssignRange');
+    btn.disabled = true;
+    btn.textContent = 'Guardando rango...';
+
+    try {
+        const newDayLocations = { ...dayLocations };
+        let curr = new Date(startDate);
+        while (curr <= endDate) {
+            const dateStr = formatDateStr(curr);
+            newDayLocations[dateStr] = locationVal;
+            curr.setDate(curr.getDate() + 1);
+        }
+
+        await db.collection('stefcitas_settings').doc('availability').set({
+            dayLocations: newDayLocations
+        }, { merge: true });
+
+        dayLocations = newDayLocations;
+        showToast(`Rango asignado con éxito a ${locationVal === 'Hermosillo' ? 'Hermosillo' : 'Mexicali'}`, 'success');
+        
+        // Reset inputs
+        document.getElementById('rangeStart').value = '';
+        document.getElementById('rangeEnd').value = '';
+        
+        // Re-render
+        renderAdminCalendar();
+    } catch (error) {
+        console.error('Error saving date range:', error);
+        showToast('Error al guardar el rango de fechas.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Asignar Rango';
+    }
 }
 
 function updateMaintenanceUI() {
@@ -844,10 +936,10 @@ async function saveDefaultHours() {
             defaultHours: newHours
         }, { merge: true });
 
-        showToast('✅ Horarios predeterminados guardados', 'success');
+        showToast('Horarios predeterminados guardados', 'success');
     } catch (error) {
         console.error('Error saving default hours:', error);
-        showToast('❌ Error al guardar horarios', 'error');
+        showToast('Error al guardar horarios', 'error');
     } finally {
         btn.disabled = false;
     }

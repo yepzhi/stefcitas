@@ -180,7 +180,13 @@
 
         <!-- Step 5: Confirmation -->
         <div class="step-panel" id="step5">
-            <div class="step-title">Confirma tu cita ✅</div>
+            <div class="step-title" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                Confirma tu cita
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8A96B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
             <div class="confirmation-card" id="confirmationCard">
                 <!-- Filled by JS -->
             </div>
@@ -193,7 +199,12 @@
         <!-- Success Screen -->
         <div class="step-panel" id="stepSuccess" style="display:none;">
             <div class="success-container" style="width:100%;">
-                <div class="success-icon">🎉</div>
+                <div class="success-icon" style="color: #4ade80; display: flex; justify-content: center; align-items: center; margin-bottom: 16px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.4));">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
                 <div class="success-title">¡Cita Registrada!</div>
                 <p class="success-text">Tu cita ha sido guardada. Por favor, envía el mensaje de WhatsApp para confirmar con Stefany.</p>
                 <div class="confirmation-card" id="successCard" style="width:100%;">
