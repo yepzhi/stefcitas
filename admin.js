@@ -288,14 +288,24 @@ function renderAdminCalendar() {
         const dateStr = formatDateStr(date);
         const dayOfWeek = date.getDay();
 
+        const dayLoc = dayLocations[dateStr] || 'Mexicali';
+
         const cell = document.createElement('div');
         cell.className = 'cal-day';
-        cell.textContent = d;
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'day-number';
+        numSpan.textContent = d;
+        cell.appendChild(numSpan);
+
+        const locSpan = document.createElement('span');
+        locSpan.className = 'day-location-badge';
+        locSpan.textContent = dayLoc === 'Hermosillo' ? 'HMO' : 'MXL';
+        cell.appendChild(locSpan);
 
         const isClosedGeneral = defaultHours[dayOfWeek] === null || defaultHours[dayOfWeek] === undefined;
         const isBlocked = blockedDays[dateStr] === true;
 
-        const dayLoc = dayLocations[dateStr] || 'Mexicali';
         if (dayLoc === 'Hermosillo') {
             cell.classList.add('loc-hermosillo');
         } else {

@@ -517,16 +517,16 @@ body::before {
 .cal-day {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    font-size: 0.9em;
-    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid transparent;
     color: rgba(255, 255, 255, 0.8);
     background: rgba(255, 255, 255, 0.03);
+    padding: 6px 0;
 }
 
 .cal-day:hover:not(.disabled):not(.empty) {
@@ -584,6 +584,27 @@ body::before {
 
 .cal-day.loc-mexicali {
     border-bottom: 3px solid #556B2F !important;
+}
+
+.day-number {
+    font-size: 1.05em;
+    font-weight: 700;
+}
+
+.day-location-badge {
+    font-size: 0.65em;
+    font-weight: 800;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+.cal-day.loc-hermosillo .day-location-badge {
+    color: #C8A96B;
+}
+
+.cal-day.loc-mexicali .day-location-badge {
+    color: #a3b882;
 }
 
 

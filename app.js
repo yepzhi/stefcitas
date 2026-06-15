@@ -297,16 +297,26 @@ function renderCalendar() {
         const dateStr = formatDateStr(date);
         const dayOfWeek = date.getDay();
 
+        const dayLoc = dayLocations[dateStr] || 'Mexicali';
+
         const cell = document.createElement('div');
         cell.className = 'cal-day';
-        cell.textContent = d;
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'day-number';
+        numSpan.textContent = d;
+        cell.appendChild(numSpan);
+
+        const locSpan = document.createElement('span');
+        locSpan.className = 'day-location-badge';
+        locSpan.textContent = dayLoc === 'Hermosillo' ? 'HMO' : 'MXL';
+        cell.appendChild(locSpan);
 
         const isPast = date < today;
         const isSunday = dayOfWeek === 0;
         const isBlocked = blockedDays[dateStr] === true;
         const hasHours = getHoursForDate(date) !== null;
 
-        const dayLoc = dayLocations[dateStr] || 'Mexicali';
         if (dayLoc === 'Hermosillo') {
             cell.classList.add('loc-hermosillo');
         } else {
