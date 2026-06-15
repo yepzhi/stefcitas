@@ -16,7 +16,7 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_MX">
 
-    <link rel="stylesheet" href="styles.css?v=2.6">
+    <link rel="stylesheet" href="styles.css?v=2.7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -71,12 +71,12 @@
         <div class="progress-bar">
             <div class="progress-step active" data-step="1">
                 <div class="step-circle">1</div>
-                <span class="step-label">Servicio</span>
+                <span class="step-label">Fecha</span>
             </div>
             <div class="progress-line"></div>
             <div class="progress-step" data-step="2">
                 <div class="step-circle">2</div>
-                <span class="step-label">Fecha</span>
+                <span class="step-label">Servicio</span>
             </div>
             <div class="progress-line"></div>
             <div class="progress-step" data-step="3">
@@ -95,10 +95,10 @@
             </div>
         </div>
 
-        <!-- Step 1: Location & Service Selection -->
+        <!-- Step 1: Location & Date Selection -->
         <div class="step-panel active" id="step1">
-            <div class="step-title">¿Dónde y qué servicio deseas? ✨</div>
-            <div class="control-group">
+            <div class="step-title">Elige la ubicación y fecha 📅</div>
+            <div class="control-group" style="margin-bottom: 24px;">
                 <label class="control-label" for="locationSelect">Selecciona la ubicación</label>
                 <select id="locationSelect" class="input-select">
                     <option value="" disabled selected>— Elige una ubicación —</option>
@@ -106,28 +106,6 @@
                     <option value="Hermosillo">Hermosillo, Son.</option>
                 </select>
             </div>
-            <div class="control-group" style="margin-top: 16px;">
-                <label class="control-label" for="serviceSelect">Selecciona un servicio</label>
-                <select id="serviceSelect" class="input-select" disabled>
-                    <option value="" disabled selected>— Primero elige ubicación —</option>
-                    <!-- Services injected by JS -->
-                </select>
-            </div>
-            <div class="service-info-card" id="serviceInfo" style="display:none;">
-                <div class="info-row">
-                    <span class="info-icon" id="serviceEmoji"></span>
-                    <div>
-                        <div class="info-title" id="serviceName"></div>
-                        <div class="info-subtitle" id="serviceDuration"></div>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-primary" id="btnNext1" disabled>Continuar →</button>
-        </div>
-
-        <!-- Step 2: Date Selection -->
-        <div class="step-panel" id="step2">
-            <div class="step-title">Elige la fecha 📅</div>
             <div class="calendar-nav">
                 <button class="cal-nav-btn" id="prevMonth">‹</button>
                 <span class="cal-month-label" id="calMonthLabel"></span>
@@ -141,6 +119,27 @@
                 <div class="cal-header-cell">Vie</div>
                 <div class="cal-header-cell">Sáb</div>
                 <div class="cal-header-cell">Dom</div>
+            </div>
+            <button class="btn-primary" id="btnNext1" disabled style="margin-top: 24px;">Continuar →</button>
+        </div>
+
+        <!-- Step 2: Service Selection -->
+        <div class="step-panel" id="step2">
+            <div class="step-title">Selecciona un servicio ✨</div>
+            <div class="control-group">
+                <select id="serviceSelect" class="input-select" disabled>
+                    <option value="" disabled selected>— Primero elige ubicación —</option>
+                    <!-- Services injected by JS -->
+                </select>
+            </div>
+            <div class="service-info-card" id="serviceInfo" style="display:none; margin-top: 16px;">
+                <div class="info-row">
+                    <span class="info-icon" id="serviceEmoji"></span>
+                    <div>
+                        <div class="info-title" id="serviceName"></div>
+                        <div class="info-subtitle" id="serviceDuration"></div>
+                    </div>
+                </div>
             </div>
             <div class="step-buttons">
                 <button class="btn-secondary" id="btnBack2">← Atrás</button>
@@ -245,7 +244,7 @@
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="app.js?v=2.6"></script>
+    <script src="app.js?v=2.7"></script>
     <!-- Visitors Unified Tracker -->
     <script>window.NEOSYS_SITE_ID = "stefcitas";</script>
     <script src="https://yepzhi.com/visitors/tracker.js"></script>

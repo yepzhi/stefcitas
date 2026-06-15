@@ -164,9 +164,12 @@ function bindEvents() {
     if (locationSelect) {
         locationSelect.addEventListener('change', (e) => {
             selectedLocation = e.target.value;
+            selectedDate = null;
             selectedService = null;
+            selectedTime = null;
             document.getElementById('serviceInfo').style.display = 'none';
             document.getElementById('btnNext1').disabled = true;
+            document.getElementById('btnNext2').disabled = true;
             renderServicesDropdown();
             renderCalendar();
         });
@@ -178,7 +181,7 @@ function bindEvents() {
         if (!isNaN(idx)) {
             selectedService = SERVICES[idx];
             showServiceInfo(selectedService);
-            document.getElementById('btnNext1').disabled = false;
+            document.getElementById('btnNext2').disabled = false;
         }
     });
 
@@ -260,7 +263,7 @@ function goToStep(step) {
     currentStep = step;
 
     // Step-specific actions
-    if (step === 2) renderCalendar();
+    if (step === 1) renderCalendar();
     if (step === 3) renderTimeSlots();
     if (step === 5) renderConfirmation();
 }
@@ -395,7 +398,7 @@ function isDayFull(date) {
 function selectDate(date, cell) {
     selectedDate = date;
     selectedTime = null;
-    document.getElementById('btnNext2').disabled = false;
+    document.getElementById('btnNext1').disabled = false;
 
     // Update visual selection
     document.querySelectorAll('.cal-day.selected').forEach(c => c.classList.remove('selected'));
@@ -647,6 +650,7 @@ function resetBooking() {
     document.getElementById('clientName').value = '';
     document.getElementById('clientPhone').value = '';
     document.getElementById('btnNext1').disabled = true;
+    document.getElementById('btnNext2').disabled = true;
     document.getElementById('btnConfirm').disabled = false;
     document.getElementById('btnConfirm').textContent = 'Confirmar Cita ✨';
 
